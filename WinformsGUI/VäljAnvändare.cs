@@ -22,7 +22,7 @@ namespace WinformsGUI
 
         private void btnAnvändare_Click(object sender, EventArgs e)
         {
-            HyraFordon hyraFordon = new HyraFordon(logicLayer);
+            Användarmeny hyraFordon = new Användarmeny(logicLayer);
 
             hyraFordon.ShowDialog();
 

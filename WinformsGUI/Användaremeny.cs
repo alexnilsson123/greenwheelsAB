@@ -5,51 +5,48 @@ using System.Windows.Forms;
 
 namespace WinformsGUI
 {
-    public partial class HyraFordon : Form
+    public partial class Användarmeny : Form
     {
         private LogicLayer logicLayer;
         
-        public HyraFordon(LogicLayer logicLayer)
+        public Användarmeny(LogicLayer logicLayer)
         {
             this.logicLayer = logicLayer;
             InitializeComponent();
+
             RefreshAllt();
         }
-
+        
         private void btnRefreshAllt_Click(object sender, EventArgs e)
         {
             RefreshAllt();
         }
 
+
         public void RefreshAllt()
         {
-            
+
             int? valtAnvändarID = null;
             if (dataGridViewAnvändare.CurrentRow != null)
             {
                 valtAnvändarID = (int)dataGridViewAnvändare.CurrentRow.Cells["AnvändarID"].Value;
             }
 
-            
             dataGridViewAnvändare.DataSource = new BindingList<Användare>(logicLayer.HämtaAnvändare());
-
-           
             dataGridViewStationer.DataSource = new BindingList<Station>(logicLayer.HämtaStationer());
 
-            // Uppdatera fordonslistan om en station är vald
             if (dataGridViewStationer.SelectedRows.Count > 0)
             {
-                int stationID = (int)dataGridViewStationer.SelectedRows[0].Cells["StationID"].Value;
-                
-                dataGridViewFordon.DataSource = new BindingList<Fordon>(logicLayer.VisaTillgängligaFordon(stationID));
+                Station station = (Station)dataGridViewStationer.SelectedRows[0].DataBoundItem;
 
+                dataGridViewFordon.DataSource = new BindingList<Fordon>(logicLayer.VisaTillgängligaFordon(station));
+             
             }
             else
             {
                 dataGridViewFordon.DataSource = new BindingList<Fordon>();
             }
 
-            // Återställ det valda användar-ID:t om det finns
             if (valtAnvändarID != null)
             {
                 foreach (DataGridViewRow row in dataGridViewAnvändare.Rows)
@@ -62,32 +59,44 @@ namespace WinformsGUI
                     }
                 }
             }
-            // Uppdatera aktiva hyror för den valda användaren
             RefreshHyror();
         }
+
+
+
 
         private void dataGridViewStationer_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (dataGridViewStationer.SelectedRows.Count > 0)
             {
-                int stationID = (int)dataGridViewStationer.SelectedRows[0].Cells["StationID"].Value;
-                dataGridViewFordon.DataSource = new BindingList<Fordon>(logicLayer.VisaTillgängligaFordon(stationID));
+                Station station = (Station)dataGridViewStationer.SelectedRows[0].DataBoundItem;
+
+                dataGridViewFordon.DataSource = new BindingList<Fordon>(logicLayer.VisaTillgängligaFordon(station));
+
+                if (dataGridViewFordon.Columns["Station"] != null) 
+                {
+                    dataGridViewFordon.Columns["Station"].Visible = false; 
+                }
+
+               
             }
+            
         }
 
         private void btnHyra_Click(object sender, EventArgs e)
         {
             if (dataGridViewAnvändare.SelectedRows.Count > 0 && dataGridViewFordon.SelectedRows.Count > 0 && dataGridViewStationer.SelectedRows.Count > 0)
             {
-                int användarID = (int)dataGridViewAnvändare.SelectedRows[0].Cells["AnvändarID"].Value;
-                int fordonID = (int)dataGridViewFordon.SelectedRows[0].Cells["FordonID"].Value;
-                int stationID = (int)dataGridViewStationer.SelectedRows[0].Cells["StationID"].Value;
+                var användare = (Användare)dataGridViewAnvändare.SelectedRows[0].DataBoundItem;
+                var fordon = (Fordon)dataGridViewFordon.SelectedRows[0].DataBoundItem;
+                var station = (Station)dataGridViewStationer.SelectedRows[0].DataBoundItem;
 
-                bool lyckadesHyra = logicLayer.HyraFordon(användarID, fordonID, stationID);
+                bool lyckadesHyra = logicLayer.HyraFordon(användare, fordon, station);
+
 
                 if (lyckadesHyra)
                 {
-                    MessageBox.Show($"Användare med ID {användarID} har hyrt fordon {fordonID}.", "Hyra Bekräftelse");
+                    MessageBox.Show($"Användare med ID {användare.AnvändarID} har hyrt fordon {fordon.FordonID}.", "Hyra Bekräftelse");
                     RefreshAllt();
                 }
                 else
@@ -105,11 +114,10 @@ namespace WinformsGUI
         {
             if (dataGridViewAnvändare.SelectedRows.Count > 0 && dataGridViewAktivhyra.SelectedRows.Count > 0 && dataGridViewStationer.SelectedRows.Count > 0)
             {
-                int användarID = (int)dataGridViewAnvändare.SelectedRows[0].Cells["AnvändarID"].Value;
-                int hyraID = (int)dataGridViewAktivhyra.SelectedRows[0].Cells["HyraID"].Value;
-                int stationID = (int)dataGridViewStationer.SelectedRows[0].Cells["StationID"].Value; // Vald station att återlämna fordonet
+                var hyra = (Hyra)dataGridViewAktivhyra.SelectedRows[0].DataBoundItem;
+                var station = (Station)dataGridViewStationer.SelectedRows[0].DataBoundItem;
+                string resultat = logicLayer.AvslutaHyraOchVisaKostnad(hyra, station);
 
-                string resultat = logicLayer.AvslutaHyraOchVisaKostnad(hyraID, stationID); // Skicka med stationID för återlämning
 
                 MessageBox.Show(resultat, "Avsluta Hyra");
 
@@ -121,33 +129,36 @@ namespace WinformsGUI
             }
         }
 
-       
+
+
         private void RefreshHyror()
         {
-
             if (dataGridViewAnvändare.CurrentRow != null)
             {
+                var valdAnvändare = (Användare)dataGridViewAnvändare.CurrentRow.DataBoundItem;
+                var aktivaHyror = logicLayer.HämtaAktivaHyror(valdAnvändare);
 
-                int användarID = (int)dataGridViewAnvändare.CurrentRow.Cells["AnvändarID"].Value;
+              
+                dataGridViewAktivhyra.DataSource = new BindingList<Hyra>(aktivaHyror);
 
-
-                var aktivaHyror = logicLayer.HämtaAktivaHyror(användarID);
-
-                // Kontrollera om det finns aktiva hyror och visa dessa i DataGridView
-                if (aktivaHyror.Count > 0)
+                if (dataGridViewAktivhyra.Columns["Användare"] != null)
                 {
-                    dataGridViewAktivhyra.DataSource = new BindingList<Hyra>(aktivaHyror);
+                    dataGridViewAktivhyra.Columns["Användare"].Visible = false;  
                 }
-                else
+
+                if (dataGridViewAktivhyra.Columns["Fordon"] != null)
                 {
-                    // Om inga aktiva hyror finns, rensa DataGridView
-                    dataGridViewAktivhyra.DataSource = new BindingList<Hyra>();
+                    dataGridViewAktivhyra.Columns["Fordon"].Visible = false; 
                 }
             }
-
+            else
+            {
+                dataGridViewAktivhyra.DataSource = new BindingList<Hyra>();
+            }
         }
 
 
+       
         private void dataGridViewAnvändare_CellClick(object sender, DataGridViewCellEventArgs e)
         {
 
@@ -159,13 +170,11 @@ namespace WinformsGUI
         {
             if (dataGridViewAnvändare.SelectedRows.Count > 0)
             {
+                var valdAnvändare = (Användare)dataGridViewAnvändare.SelectedRows[0].DataBoundItem;
 
-                int användarID = (int)dataGridViewAnvändare.SelectedRows[0].Cells["AnvändarID"].Value;
+                List<Hyra> hyreshistorik = logicLayer.HämtaHyresHistorik(valdAnvändare);
 
-
-                List<Hyra> hyreshistorik = logicLayer.HämtaHyresHistorik(användarID);
-
-
+               
                 HyresHistorikForm historikForm = new HyresHistorikForm(hyreshistorik);
                 historikForm.ShowDialog();
             }

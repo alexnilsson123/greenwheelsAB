@@ -1,6 +1,6 @@
 ﻿namespace WinformsGUI
 {
-    partial class HyraFordon
+    partial class Användarmeny
     {
         /// <summary>
         ///  Required designer variable.
@@ -42,6 +42,7 @@
             label1 = new Label();
             btnVisaHyreshistorik = new Button();
             button1 = new Button();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridViewAnvändare).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStationer).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewFordon).BeginInit();
@@ -187,11 +188,21 @@
             button1.Text = "Underhåll";
             button1.UseVisualStyleBackColor = true;
             // 
-            // HyraFordon
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(1170, 316);
+            label2.Name = "label2";
+            label2.Size = new Size(214, 15);
+            label2.TabIndex = 14;
+            label2.Text = "Välj station för att se tillgängliga fordon";
+            // 
+            // Användarmeny
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1585, 760);
+            Controls.Add(label2);
             Controls.Add(button1);
             Controls.Add(btnVisaHyreshistorik);
             Controls.Add(label1);
@@ -206,7 +217,7 @@
             Controls.Add(lblAnvändare);
             Controls.Add(dataGridViewStationer);
             Controls.Add(dataGridViewAnvändare);
-            Name = "HyraFordon";
+            Name = "Användarmeny";
             Text = "Hyra / Lämna Fordon";
             ((System.ComponentModel.ISupportInitialize)dataGridViewAnvändare).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewStationer).EndInit();
@@ -232,5 +243,6 @@
         private Label label1;
         private Button btnVisaHyreshistorik;
         private Button button1;
+        private Label label2;
     }
 }

@@ -56,6 +56,7 @@
             btnLäggTillFordon.TabIndex = 1;
             btnLäggTillFordon.Text = "Lägg till fordon";
             btnLäggTillFordon.UseVisualStyleBackColor = true;
+            btnLäggTillFordon.Click += btnLäggTillFordon_Click;
             // 
             // btnTaBortFordon
             // 

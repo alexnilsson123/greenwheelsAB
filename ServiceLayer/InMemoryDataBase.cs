@@ -43,7 +43,6 @@ namespace ServiceLayer
 
 
             #region Skapa Station
-
             var station1 = new Station(1, "Rinkeby Station", "Stockholm");
             var station2 = new Station(2, "Los Angered Station", "Göteborg");
             var station3 = new Station(3, "Rosengård station", "Malmö");
@@ -52,14 +51,14 @@ namespace ServiceLayer
 
 
             #region Skapa Fordon
-            var fordon1 = new Fordon(1, "El Scooter", 80, "Ledig", 1);
-            var fordon2 = new Fordon(2, "El Scooter", 75, "Ledig", 1);
-            var fordon3 = new Fordon(3, "El Cyckel", 92, "Ledig", 1);
-            var fordon4 = new Fordon(4, "El Scooter", 91, "Ledig", 2);
-            var fordon5 = new Fordon(5, "El Cyckel", 100, "Ledig", 2);
-            var fordon6 = new Fordon(6, "El Cyckel", 83, "Ledig", 2);
-            var fordon7 = new Fordon(7, "El Scooter", 100, "Ledig", 3);
-            var fordon8 = new Fordon(8, "El Scooter", 61, "Ledig", 3);
+            var fordon1 = new Fordon(1, "El Scooter", 80, "Ledig", station1);
+            var fordon2 = new Fordon(2, "El Scooter", 75, "Ledig", station1);
+            var fordon3 = new Fordon(3, "El Cyckel", 92, "Ledig", station1);
+            var fordon4 = new Fordon(4, "El Scooter", 91, "Ledig", station2);
+            var fordon5 = new Fordon(5, "El Cyckel", 100, "Ledig", station2);
+            var fordon6 = new Fordon(6, "El Cyckel", 83, "Ledig", station2);
+            var fordon7 = new Fordon(7, "El Scooter", 100, "Ledig", station3);
+            var fordon8 = new Fordon(8, "El Scooter", 61, "Ledig", station3);
             #endregion
 
 
@@ -67,10 +66,8 @@ namespace ServiceLayer
             #region Lägg Fordon i station
             station.AddRange(new[] { station1, station2, station3 });
 
-            // Lägg till fordon till databasen
             fordon.AddRange(new[] { fordon1, fordon2, fordon3, fordon4, fordon5,fordon6,fordon7,fordon8 });
 
-            // Lägg till fordon till rätt station
             station1.AntalTillgängligaFordon.Add(fordon1);
             station1.AntalTillgängligaFordon.Add(fordon2);
             station1.AntalTillgängligaFordon.Add(fordon3);

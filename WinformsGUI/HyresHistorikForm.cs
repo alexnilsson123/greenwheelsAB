@@ -18,6 +18,16 @@ namespace WinformsGUI
             InitializeComponent();
 
             dataGridViewHyresHistorik.DataSource = new BindingList<Hyra>(hyreshistorik);
+            if (dataGridViewHyresHistorik.Columns["Användare"] != null)
+            {
+                dataGridViewHyresHistorik.Columns["Användare"].Visible = false;  
+            }
+
+            if (dataGridViewHyresHistorik.Columns["Fordon"] != null)
+            {
+                dataGridViewHyresHistorik.Columns["Fordon"].Visible = false;  
+            }
+
         }
     }
 }

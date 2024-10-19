@@ -16,7 +16,6 @@ namespace WinformsGUI
     {
         private LogicLayer logicLayer;
         private Fordon valtFordon;
-
         public AdminMeny(LogicLayer logicLayer)
         {
             InitializeComponent();
@@ -32,6 +31,11 @@ namespace WinformsGUI
         private void RefreshDataGridViewFordon()
         {
             dataGridViewFordon.DataSource = new BindingList<Fordon>(logicLayer.HämtaAllaFordon());
+
+            if (dataGridViewFordon.Columns["Station"] != null)
+            {
+                dataGridViewFordon.Columns["Station"].Visible = false;
+            }
         }
 
         private void dataGridViewFordon_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -42,13 +46,22 @@ namespace WinformsGUI
 
         private void btnTaBortFordon_Click(object sender, EventArgs e)
         {
-            
+
             if (valtFordon != null)
             {
-                logicLayer.RemoveFordon(valtFordon);
+                logicLayer.TaBortFordon(valtFordon);
             }
+            MessageBox.Show($" Fordon med ID {valtFordon.FordonID} har tagits bort från systmet :)");
             RefreshDataGridViewFordon();
-            
+
+        }
+
+        private void btnLäggTillFordon_Click(object sender, EventArgs e)
+        {
+            LäggTillFordon läggTillFordon = new LäggTillFordon(logicLayer);
+            läggTillFordon.ShowDialog();
+            RefreshDataGridViewFordon(); 
+
         }
     }
 }

@@ -1,21 +1,26 @@
 ﻿namespace GreenwheelsAB
 {
+    
     public class Hyra
     {
         public int HyraID { get; set; }
-        public int AnvändarID { get; set; }
-        public int FordonID { get; set; }
+        public Användare Användare { get; set; }  
+        public Fordon Fordon { get; set; }        
         public DateTime Starttid { get; set; }
-        public DateTime? Sluttid { get; set; } 
-        public decimal Kostnad { get; set; } 
+        public DateTime? Sluttid { get; set; }
+        public decimal Kostnad { get; set; }
 
-        public Hyra(int hyraID, int användarID, int fordonID)
+        public int AnvändarID => Användare.AnvändarID;
+        public int FordonID => Fordon.FordonID;
+
+        public Hyra(int hyraID, Användare användare, Fordon fordon)
         {
             HyraID = hyraID;
-            AnvändarID = användarID;
-            FordonID = fordonID;
-            Starttid = DateTime.Now; 
+            Användare = användare ;
+            Fordon = fordon;
+            Starttid = DateTime.Now;
         }
     }
+
 
 }

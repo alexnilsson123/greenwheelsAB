@@ -9,24 +9,10 @@ namespace ServiceLayer
         private InMemoryDataBase inmemorydatabase = new InMemoryDataBase();
 
 
+
         public List<Användare> HämtaAnvändare()
         {
             return inmemorydatabase.användare;
-        }
-
-
-        public void RemoveFordon(Fordon fordon)
-        {
-            inmemorydatabase.fordon.Remove(fordon);
-            foreach (var station in inmemorydatabase.station)
-            {
-                var fordonPåStation = station.AntalTillgängligaFordon.FirstOrDefault(f => f.FordonID == fordon.FordonID);
-                if (fordonPåStation != null)
-                {
-                    station.AntalTillgängligaFordon.Remove(fordonPåStation);
-                }
-            }
-
         }
 
 
@@ -36,125 +22,101 @@ namespace ServiceLayer
         }
 
 
-
         public List<Station> HämtaStationer()
         {
             return inmemorydatabase.station;
         }
 
-        public List<Hyra> HämtaHyresHistorik(int användarID)
+
+        public List<Fordon> VisaTillgängligaFordon(Station station)
         {
-            return inmemorydatabase.hyra.Where(h => h.AnvändarID == användarID).ToList();
+            return station.AntalTillgängligaFordon.Where(f => f.Status == "Ledig").ToList();
         }
 
-        public List<Fordon> VisaTillgängligaFordon(int stationID)
+        public void TaBortFordon(Fordon fordon)
         {
-            return inmemorydatabase.fordon.Where(f => f.StationID == stationID && f.Status == "Ledig" && inmemorydatabase.fordon.Contains(f)).ToList();
-        }
-
-
-        public void UppdateraFordonStatus(int fordonID, string status)
-        {
-            var fordon = inmemorydatabase.fordon.FirstOrDefault(f => f.FordonID == fordonID);
-            if (fordon != null)
+            inmemorydatabase.fordon.Remove(fordon);
+            foreach (var station in inmemorydatabase.station)
             {
-                fordon.Status = status;
+                station.AntalTillgängligaFordon.Remove(fordon); 
             }
         }
 
-
-        // Lägg till en ny hyra i hyreshistoriken
-        public void LäggTillHyra(int användarID, int fordonID)
+        public void LäggTillNyttFordon(Fordon fordon)
         {
-            int nyttHyraID = inmemorydatabase.hyra.Count + 1;
-            Hyra nyHyra = new Hyra(nyttHyraID, användarID, fordonID);
+            inmemorydatabase.fordon.Add(fordon);
+        }
+
+
+
+        public void UppdateraFordonStatus(Fordon fordon, string status)
+        {
+            fordon.Status = status;
+        }
+
+
+        public void LäggTillHyra(Användare användare, Fordon fordon)
+        {
+            int nyttHyraID = inmemorydatabase.hyra.Count + 1;  
+            Hyra nyHyra = new Hyra(nyttHyraID, användare, fordon);  
+            användare.HyresHistorik.Add(nyHyra);
             inmemorydatabase.hyra.Add(nyHyra);
-
-            foreach (var användare in inmemorydatabase.användare)
-            {
-                if (användare.AnvändarID == användarID)
-                {
-                    användare.HyresHistorik.Add(nyHyra);
-                    break;
-                }
-            }
         }
 
-
-
-        public bool HyraFordon(int användarID, int fordonID, int stationID)
+        public List<Hyra> HämtaHyresHistorik(Användare användare)
         {
-            // Kontrollera om användaren redan har ett fordon hyrt
-            var aktivHyra = inmemorydatabase.hyra.FirstOrDefault(h => h.AnvändarID == användarID && h.Sluttid == null);
+            return användare.HyresHistorik;
+        }
+
+        public bool HyraFordon(Användare användare, Fordon fordon, Station station)
+        {
+            var aktivHyra = användare.HyresHistorik.FirstOrDefault(h => h.Sluttid == null);
             if (aktivHyra != null)
             {
-                return false;
+                return false; 
             }
 
-
-            UppdateraFordonStatus(fordonID, "uthyrd");
-
-
-            // Ta bort fordonet från stationens lista över tillgängliga fordon
-            var station = inmemorydatabase.station.FirstOrDefault(s => s.StationID == stationID);
-            if (station != null)
-            {
-                var fordon = station.AntalTillgängligaFordon.FirstOrDefault(f => f.FordonID == fordonID);
-                if (fordon != null)
-                {
-                    station.AntalTillgängligaFordon.Remove(fordon);
-                }
-            }
-            LäggTillHyra(användarID, fordonID);
+            UppdateraFordonStatus(fordon, "Uthyrd");
+            station.AntalTillgängligaFordon.Remove(fordon);
+            LäggTillHyra(användare, fordon);
 
             return true;
         }
 
-        public List<Hyra> HämtaAktivaHyror(int användarID)
+        public List<Hyra> HämtaAktivaHyror(Användare användare)
         {
-            return inmemorydatabase.hyra.Where(h => h.AnvändarID == användarID && h.Sluttid == null).ToList();
+            return användare.HyresHistorik.Where(h => h.Sluttid == null).ToList();
         }
 
 
 
-
-        public string AvslutaHyraOchVisaKostnad(int hyraID, int stationID)
+        public string AvslutaHyraOchVisaKostnad(Hyra hyra, Station nyStation)
         {
-            var hyra = inmemorydatabase.hyra.FirstOrDefault(h => h.HyraID == hyraID);
             if (hyra != null && hyra.Sluttid == null)
             {
                 hyra.Sluttid = DateTime.Now;
                 hyra.Kostnad = BeräknaKostnad(hyra.Starttid, hyra.Sluttid.Value);
 
+                UppdateraFordonStatus(hyra.Fordon, "Ledig");
 
-                UppdateraFordonStatus(hyra.FordonID, "Ledig");
+                hyra.Fordon.Station.AntalTillgängligaFordon.Remove(hyra.Fordon);
+                hyra.Fordon.Station = nyStation;
+                nyStation.AntalTillgängligaFordon.Add(hyra.Fordon);
 
-                // Lägg tillbaka fordonet i den station användaren har valt
-                var station = inmemorydatabase.station.FirstOrDefault(s => s.StationID == stationID);
-                if (station != null)
-                {
-                    var fordon = inmemorydatabase.fordon.FirstOrDefault(f => f.FordonID == hyra.FordonID);
-                    if (fordon != null)
-                    {
-
-                        fordon.StationID = stationID;
-
-
-                        station.AntalTillgängligaFordon.Add(fordon);
-                    }
-                }
-
-                return $"Hyra avslutad och fordon återlämnat till station {stationID}. Kostnad: {hyra.Kostnad:C}";
+                return $"Hyra avslutad och fordon återlämnat till station {nyStation.StationID}. Kostnad: {hyra.Kostnad:C}";
             }
+
             return "Hyra kunde inte avslutas. Kontrollera hyresinformationen.";
         }
-       
+
         private decimal BeräknaKostnad(DateTime starttid, DateTime sluttid)
         {
             TimeSpan hyrtid = sluttid - starttid;
             decimal kostnadPerMinut = 20.0M;
             return (decimal)hyrtid.TotalMinutes * kostnadPerMinut;
         }
-
     }
+
+
+
 }
