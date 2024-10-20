@@ -11,7 +11,6 @@ namespace ServiceLayer
         internal List<Fordon> fordon;
         internal List<Användare> användare;
         internal List<Station> station;
-        internal List<Administratör> administratör;
 
         public InMemoryDataBase()
         {
@@ -19,7 +18,6 @@ namespace ServiceLayer
             hyra = new List<Hyra>();
             fordon = new List<Fordon>();
             station = new List<Station>();
-            administratör = new List<Administratör>();
             
             seed();
             

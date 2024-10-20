@@ -50,8 +50,9 @@ namespace WinformsGUI
             if (valtFordon != null)
             {
                 logicLayer.TaBortFordon(valtFordon);
+                MessageBox.Show($" Fordon med ID {valtFordon.FordonID} har tagits bort från systemet :)");
+
             }
-            MessageBox.Show($" Fordon med ID {valtFordon.FordonID} har tagits bort från systmet :)");
             RefreshDataGridViewFordon();
 
         }

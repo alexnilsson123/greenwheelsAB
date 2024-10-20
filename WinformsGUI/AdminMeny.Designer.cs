@@ -33,6 +33,7 @@
             btnTaBortFordon = new Button();
             btnRefreshFordon = new Button();
             label1 = new Label();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridViewFordon).BeginInit();
             SuspendLayout();
             // 
@@ -87,11 +88,21 @@
             label1.TabIndex = 4;
             label1.Text = "Fordonslista";
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(372, 17);
+            label2.Name = "label2";
+            label2.Size = new Size(351, 15);
+            label2.TabIndex = 5;
+            label2.Text = "För att ta bort fordon,välj ett fordon och tryck på \"Ta bort fordon\"";
+            // 
             // AdminMeny
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(748, 428);
+            Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(btnRefreshFordon);
             Controls.Add(btnTaBortFordon);
@@ -111,5 +122,6 @@
         private Button btnTaBortFordon;
         private Button btnRefreshFordon;
         private Label label1;
+        private Label label2;
     }
 }

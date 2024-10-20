@@ -3,6 +3,7 @@
     
     public class Fordon
     {
+
         public int FordonID { get; set; }
         public string Typ { get; set; }
         public int BatteriNivå { get; set; }
