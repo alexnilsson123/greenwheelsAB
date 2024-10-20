@@ -13,7 +13,7 @@ namespace WinformsGUI
 {
     public partial class VäljAnvändare : Form
     {
-        LogicLayer logicLayer;
+        private LogicLayer logicLayer;
         public VäljAnvändare(LogicLayer logicLayer)
         {
             this.logicLayer = logicLayer;

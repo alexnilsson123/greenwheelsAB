@@ -33,6 +33,7 @@ namespace ServiceLayer
             return station.AntalTillgängligaFordon.Where(f => f.Status == "Ledig").ToList();
         }
 
+       
         public void TaBortFordon(Fordon fordon)
         {
             inmemorydatabase.fordon.Remove(fordon);
@@ -42,6 +43,7 @@ namespace ServiceLayer
             }
         }
 
+     
         public void LäggTillNyttFordon(Fordon fordon)
         {
             inmemorydatabase.fordon.Add(fordon);
@@ -68,6 +70,7 @@ namespace ServiceLayer
             return användare.HyresHistorik;
         }
 
+       
         public bool HyraFordon(Användare användare, Fordon fordon, Station station)
         {
             var aktivHyra = användare.HyresHistorik.FirstOrDefault(h => h.Sluttid == null);
@@ -83,13 +86,14 @@ namespace ServiceLayer
             return true;
         }
 
+      
         public List<Hyra> HämtaAktivaHyror(Användare användare)
         {
             return användare.HyresHistorik.Where(h => h.Sluttid == null).ToList();
         }
 
 
-
+        
         public string AvslutaHyraOchVisaKostnad(Hyra hyra, Station nyStation)
         {
             if (hyra != null && hyra.Sluttid == null)
@@ -109,6 +113,7 @@ namespace ServiceLayer
             return "Hyra kunde inte avslutas. Kontrollera hyresinformationen.";
         }
 
+        
         private decimal BeräknaKostnad(DateTime starttid, DateTime sluttid)
         {
             TimeSpan hyrtid = sluttid - starttid;
